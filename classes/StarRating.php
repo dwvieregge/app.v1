@@ -6,15 +6,15 @@ class StarRating extends AppV1
 {
     public $providerid;
 
-    private $dbc;
     private $limit;
     private $random;
 
+    protected $dbc;
     protected $app;
     protected $checksth1;
     protected $addsth;
 
-    function __construct($providerid, $limit=5, $random=TRUE)
+    function __construct($providerid=null, $limit=5, $random=TRUE)
     {
         $this->limit = $limit;
         $this->random = $random;
@@ -64,7 +64,7 @@ class StarRating extends AppV1
                     $outputString .= '<li value="' . $count . '"  id="' . $starRatingId . '" class="star" onclick="addRating(' . $providers->id . ',' . $count . ');" onMouseOver="mouseOverRating(' . $providers->id . ',' . $count . ');">&#9733;</li>';
                 }
             }
-            $providers->address = $providers->address . ' ' . $providers->city . ', ' . $providers->state . ' ' . $providers->zipcode;
+            $providers->address = $providers->address . ' ' . $providers->city . ', ' . $providers->state . ' ' . $providers->postalcode;
             $outputString .= '</ul><p class="review-note">Total Reviews: ' . $totalRating . '</p><p class="text-address">' . $providers->address . ' (maybe a link to map?)</p></div>';
         }
         echo $outputString;

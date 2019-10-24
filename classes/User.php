@@ -66,6 +66,10 @@ class User extends AppV1
         return self::$instance;
     }
 
+    /**
+     * Auth()
+     * @return $this
+     */
     public function Auth()
     {
         if ( !$this->pswd ) return $this;
@@ -76,7 +80,7 @@ class User extends AppV1
         if ( $users = $sth->fetchObject() ) {
             $this->userid = $users->id;
             $this->active = $users->active;
-            if ( $this->pswd && $this->pswd != $users->pswd ) {
+            if ( $this->pswd &&  ! password_verify($this->pswd, $users->pswd) ) {
                 $this->badpswd = 1;
             }
         } else {
@@ -112,17 +116,19 @@ class User extends AppV1
 
     /**
      * Add()
-     * @return $this
+     * @return bool
      */
     public function Add()
     {
-        $this->addsth->execute(array($this->email, $this->pswd));
-        return $this;
+        if ( ! property_exists($this, 'pswd') OR strlen($this->pswd) == 0 ) return FALSE;
+        $passwordhash = password_hash($this->pswd, PASSWORD_BCRYPT, array('cost'=>12));
+        $this->addsth->execute(array($this->email, $passwordhash));
+        return TRUE;
     }
 
     /**
      * View()
-     * @return $results
+     * @return stdClass
      */
     public function View()
     {

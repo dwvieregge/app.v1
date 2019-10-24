@@ -43,6 +43,7 @@ $(document).ready(function() {
             }
             if ( data.session.hasOwnProperty('sessionid') ) {
                 localStorage.setItem('service-session', data.session.sessionid);
+                setCookie('service-session-id', data.session.sessionid, 1)
             }
 
             $.mobile.changePage("#vehicle-info-page", {
@@ -73,4 +74,10 @@ function isValidPassword(pswd) {
     }
     var pattern = /^[a-z0-9!?#@%&\$\^\*]+$/i;
     return pattern.test(pswd);
+}
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }

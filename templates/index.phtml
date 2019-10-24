@@ -16,10 +16,29 @@
             $(document).ready(function() {
                 $.mobile.initializePage();
 
+                var sessionid = localStorage.getItem('service-session');
+                if ( sessionid ) {
+                    AuthBySessionId(sessionid);
+                }
+
                 $( "#vehicle-info-page" ).on('pageinit pageshow', function( event, ui ) {
-                    $('.customer-name').html(localStorage.getItem('service-customer'));
-                    var sessionid = localStorage.getItem('service-session');
-                    alert(sessionid);
+                    var today = new Date()
+                    var curHr = today.getHours()
+                    var salutaion = 'Good Morning ';
+                    if (curHr < 12) {
+                        salutaion = 'Good Morning ';
+                    } else if (curHr < 18) {
+                        salutaion = 'Good Afternoon ';
+                    } else {
+                        salutaion = 'Good Evening ';
+                    }
+                    $('.customer-name').html(salutaion + localStorage.getItem('service-customer'));
+                    if( $.cookie('service-session-id') === null ) {
+                        // EXPIRED
+                    } else {
+                        var sessionid = getCookie('service-session-id');
+                        alert(sessionid);
+                    }
                 });
             });
             $(document).bind("mobileinit", function () {
@@ -28,6 +47,48 @@
                     type: "horizontal"
                 });
             });
+            function AuthBySessionId(sid) {
+                if ( sid ) {
+                    $.mobile.changePage("#vehicle-info-page", {
+                        transition: "pop",
+                        reverse: false,
+                        changeHash: false
+                    });
+                }
+            }
+            function setCookie(cname, cvalue, exdays) {
+                var d = new Date();
+                d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                var expires = "expires="+d.toUTCString();
+                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            }
+
+            function getCookie(cname) {
+                var name = cname + "=";
+                var ca = document.cookie.split(';');
+                for(var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+
+            function checkCookie() {
+                var user = getCookie("username");
+                if (user != "") {
+                    alert("Welcome again " + user);
+                } else {
+                    user = prompt("Please enter your name:", "");
+                    if (user != "" && user != null) {
+                        setCookie("username", user, 365);
+                    }
+                }
+            }
         </script>
         <script src="js/starrating.js"></script>
         <script src="js/navigation.js"></script>
