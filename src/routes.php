@@ -52,22 +52,25 @@ return function (App $app) {
          */
         $user = new User($args);
         $user->Auth();
+
+        unset($data->{'user'}->{'userid'}); // lets not reveal this to the public!
         $data->user = $user;
 
         /**
-         * success create session and find what customer
+         * get session and customer if you got a userid
          */
-        if ( $user->success ) {
-            if ( $user->isvalid && $user->active ) {
-                $session = new Session($user);
-                $data->session = $session;
+        if ( $user->active AND ! $user->badpswd AND ! $user->notfound ) {
+            $session = new Session($user);
+            $customer = new Customer($user);
 
-                $customer = new Customer($user);
-                $customer->View();
-                $data->customer = $customer;
-            }
-        } else {
-            $data->error =  'User not found';
+
+            /**
+             * assign user session and customer to data
+             */
+
+            $data->session = $session;
+            $customer->View();
+            $data->customer = $customer;
         }
         echo json_encode($data);
     });
@@ -126,10 +129,10 @@ return function (App $app) {
             $forgot = new Forgot($user);
             $forgot->SendLinkEmail();
             $data = $forgot;
-        } else if ( !$user->active) {
-            $data->error =  1;
+        } else if ( !$user->active ) {
+            $data->inactive =  1;
         } else {
-            $data->error = 2;
+            $data->nomatch =  1;
         }
         echo json_encode($data);
     });

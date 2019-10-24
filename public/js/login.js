@@ -2,7 +2,6 @@ $(document).ready(function() {
     $(".login-in-btn").on("click", function () {
         var email = $("#login-in-email").val();
         var pswd = $("#login-in-password").val();
-        email = 'david.vieregge@icloud.com'; pswd = '1234509876!!';
         if ( ! isValidEmailAddress(email) ) {
             alert("Your email address isn't correctly formatted.");
             return;
@@ -22,37 +21,35 @@ $(document).ready(function() {
         request.done(function(data) {
             if ( window.console ) console.log(data);
             if ( window.console ) console.log(data.user);
-            if ( data.user.hasOwnProperty('success' ) ) {
-                if ( ! data.user.hasOwnProperty('active' ) ) {
-                    alert("We found you, but your account is no longer active. Please contact our support team.");
-                    return;
-                }
-                if ( ! data.user.hasOwnProperty('isvalid' ) ) {
-                    alert("We found you, but your password doesn't match our records. Click the forgot password link or try again.");
-                    return;
-                }
-                if ( data.session.hasOwnProperty('isexpired') ) {
-                    alert( 'session expired');
-                }
-                if ( data.customer.hasOwnProperty('found') ) {
-                    localStorage.setItem('service-customer', data.customer.firstname + ' ' + data.customer.lastname);
-                }
-                if ( data.session.hasOwnProperty('found') && data.session.hasOwnProperty('sessionid') ) {
-                    localStorage.setItem('service-session', data.session.sessionid);
-                }
-
-                $.mobile.changePage("#vehicle-info-page", {
-                    transition: "pop",
-                    reverse: false,
-                    changeHash: false
-                });
-            } else if ( data.hasOwnProperty('error' ) ) {
-                alert(data.error)
-                return;
-            } else {
-                alert('You are not authorized.');
+            if ( data.user.hasOwnProperty('notfound' ) && data.user.notfound ) {
+                alert("We couldn't find your email in our system. Try another one or create a new account.");
                 return;
             }
+            if ( ! data.user.hasOwnProperty('active' )  && !data.user.active  ) {
+                alert("We found you, but your account is no longer active. Please contact our support team.");
+                return;
+            }
+            if ( ! data.user.hasOwnProperty('badpswd' ) && data.user.badpswd ) {
+                alert("We found you, but your password doesn't match our records. Click the forgot password link or try again.");
+                return;
+            }
+            if ( data.session.hasOwnProperty('isexpired') ) {
+                localStorage.setItem('service-session', null);
+                alert('Your session has expired. Please log in again.');
+                return;
+            }
+            if ( data.customer.hasOwnProperty('firstname') && data.customer.hasOwnProperty('lastname')) {
+                localStorage.setItem('service-customer', data.customer.firstname + ' ' + data.customer.lastname);
+            }
+            if ( data.session.hasOwnProperty('sessionid') ) {
+                localStorage.setItem('service-session', data.session.sessionid);
+            }
+
+            $.mobile.changePage("#vehicle-info-page", {
+                transition: "pop",
+                reverse: false,
+                changeHash: false
+            });
         });
         request.fail(function( jqXHR, textStatus ) {
             try {

@@ -15,6 +15,12 @@
         <script>
             $(document).ready(function() {
                 $.mobile.initializePage();
+
+                $( "#vehicle-info-page" ).on('pageinit pageshow', function( event, ui ) {
+                    $('.customer-name').html(localStorage.getItem('service-customer'));
+                    var sessionid = localStorage.getItem('service-session');
+                    alert(sessionid);
+                });
             });
             $(document).bind("mobileinit", function () {
                 $.mobile.autoInitializePage = false;
@@ -254,6 +260,7 @@
 
             <div role="main" class="ui-content">
                 <p>
+                    <div class="customer-name"></div>
                     Please enter your Vehicle Information so we can look up your vehicle
                 </p>
                 <p>

@@ -5,14 +5,14 @@ namespace Classes;
 
 class Session extends AppV1
 {
-    private $dbc;
     private $id;
+    private $lastupdate;
 
     public $isexpired = 1;
-    public $found = 0;
     public $sessionid;
 
     protected $app;
+    protected $dbc;
     protected $userid;
     protected $addsth;
     protected $editsth;
@@ -36,10 +36,10 @@ class Session extends AppV1
         if ($user->userid) {
             $this->View();
         }
-        if ( ! $this->found ) {
+        if ( ! $this->sessionid ) {
             $this->Add()->View();
         }
-        if ( $this->found ) {
+        if ( $this->sessionid ) {
             $this->Edit()->View();
         }
         return $this;
@@ -57,7 +57,7 @@ class Session extends AppV1
     function Add()
     {
         $this->sessionid = $this->app->GetRandomBin2Hex(self::sessionid_length);
-        $this->execute(array($this->userid, $this->sessionid));
+        $this->addsth->execute(array($this->userid, $this->sessionid));
         return $this;
     }
 
@@ -79,7 +79,8 @@ class Session extends AppV1
             if ( ! $this->isexpired ) {
                 unset($this->{'isexpired'});
             }
-            $this->found = 1;
+        } else {
+            unset($this->{'sessionid'});
         }
         return $this;
     }
@@ -95,6 +96,4 @@ class Session extends AppV1
         $this->editsth->execute(array($this->userid, $this->id));
         return $this;
     }
-
-
 }

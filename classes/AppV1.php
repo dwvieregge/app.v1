@@ -53,7 +53,6 @@ class AppV1
         return ($length == 0) ? TRUE : (substr($haystack, 0, $length) === $needle);
     }
 
-
     /**
      * endsWith()
      *
@@ -200,7 +199,10 @@ class AppV1
      */
     public function GetRandomBin2Hex($len)
     {
-        return bin2hex(random_bytes($len));
+        if ( function_exists('random_bytes')) {
+            return bin2hex(random_bytes($len));
+        }
+        return $this->GetRandomSHA256();
     }
 
     /**

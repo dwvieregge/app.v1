@@ -23,11 +23,11 @@ $(document).ready(function() {
             if ( window.console ) console.log(data);
             if ( data.hasOwnProperty('sent' ) ) {
                 alert("We sent you an email with a link to change your password. Check your inbox and click. (P.S. Don't forget to look in the junk)");
-            } else if ( data.hasOwnProperty('error' ) && data.error == 1 ) {
+            } else if ( data.hasOwnProperty('inactive' ) ) {
                 alert("Sorry, you are no longer active. Please contact our support team.");
                 return;
-            } else if ( data.hasOwnProperty('error' ) && data.error == 2 ) {
-                alert("2222 We couldn't find a user with the your email address. Maybe try creating a new account.");
+            } else if ( data.hasOwnProperty('nomatch' ) ) {
+                alert("We couldn't find a user with the your email address. Maybe try creating a new account.");
                 return;
             } else {
                 alert('An unknown error occurred.');

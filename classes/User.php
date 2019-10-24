@@ -8,9 +8,9 @@ class User extends AppV1
 {
     public $userid;
     public $email;
-    public $success;
     public $active;
-    public $isvalid;
+    public $badpswd;
+    public $notfound;
 
     private $pswd;
     private $app;
@@ -29,9 +29,9 @@ class User extends AppV1
 
     function __construct(array $data)
     {
-        $this->success = 0;
         $this->active = 0;
-        $this->isvalid = 0;
+        $this->badpswd = 0;
+        $this->notfound = 0;
         if ( !isset($data['email']) ) return $this;
         $this->email = $data['email'];
         if ( isset($data['pswd']) ) {
@@ -68,21 +68,19 @@ class User extends AppV1
 
     public function Auth()
     {
-        $sql = "select * from users";
+        if ( !$this->pswd ) return $this;
+        $sql = "select * from users where email = ?";
         $sth = $this->dbc->prepare($sql);
+
         $sth->execute(array($this->email));
         if ( $users = $sth->fetchObject() ) {
             $this->userid = $users->id;
             $this->active = $users->active;
-            $this->success = 1;
-            if ( ! $users->active ) {
-                unset($this->{'active'});
-            }
             if ( $this->pswd && $this->pswd != $users->pswd ) {
-                unset($this->{'isvalid'});
-            } else {
-                $this->isvalid = 1;
+                $this->badpswd = 1;
             }
+        } else {
+            $this->notfound = 1;
         }
         return $this;
     }
