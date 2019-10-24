@@ -127,9 +127,9 @@ return function (App $app) {
             $forgot->SendLinkEmail();
             $data = $forgot;
         } else if ( !$user->active) {
-            $data->error =  'You are no longer active. Please contact support.';
+            $data->error =  1;
         } else {
-            $data->error =  "We couldn't find a user with the your email address. Try creating a new account.";
+            $data->error = 2;
         }
         echo json_encode($data);
     });
