@@ -2,21 +2,34 @@
 
 namespace Classes;
 
-class StarRating
+class StarRating extends AppV1
 {
-    public $providerId;
+    public $providerid;
 
     private $dbc;
     private $limit;
     private $random;
 
-    function __construct($providerId, $limit=5, $random=TRUE)
+    protected $app;
+    protected $checksth1;
+    protected $addsth;
+
+    function __construct($providerid, $limit=5, $random=TRUE)
     {
         $this->limit = $limit;
         $this->random = $random;
-        $this->dbc = \Classes\DBConnect::instance();
+
+        $this->providerid = ( isset($providerid)) ? $providerid : FALSE;
+
+        /**
+         * parent (with dbc)
+         */
+        $this->app = parent::instance();
+        $this->dbc = $this->app->dbc;
         if ( ! $this->dbc ) return $this;
-        $this->providerId = ( isset($providerId)) ? $providerId : FALSE;
+
+        $this->checksth1 = $this->dbc->prepare("select * from star_rating where userid = ? and providerid = ?");
+        $this->addsth = $this->dbc->prepare("INSERT INTO star_rating SET userid = ?,providerid = ?, rating = ?");
     }
 
     function View()
@@ -62,16 +75,12 @@ class StarRating
         $userId = 1;
         if (isset($rating, $this->providerId)) {
 
-            $checkIfExistQuery = "select * from star_rating where userid = ? and providerid = ?";
-            $sth1 = $this->dbc->prepare($checkIfExistQuery);
-            $sth1->execute(array($userId, $this->providerId));
+            $this->checksth1->execute(array($userId, $this->providerid));
 
-            if ( $star_rating = $sth1->fetchObject() ) {
+            if ( $star_rating = $this->checksth1->fetchObject() ) {
                 echo "Already Voted!";
             } else {
-                $insertQuery = "INSERT INTO star_rating SET userid = ?,providerid = ?, rating = ?";
-                $sth2 = $this->dbc->prepare($insertQuery);
-                $sth2->execute(array($userId, $this->providerId, $rating));
+                $this->addsth->execute(array($userId, $this->providerid, $rating));
                 echo "success";
             }
         }
@@ -80,10 +89,10 @@ class StarRating
     function userRating($userId)
     {
         $average = 0;
-        if ( !isset($this->providerId, $userId) ) return 0;
+        if ( !isset($this->providerid, $userId) ) return 0;
         $avgQuery = "SELECT AVG(rating) AS average FROM star_rating WHERE userid = ? and providerid = ?";
         $sth = $this->dbc->prepare($avgQuery);
-        $sth->execute(array($userId, $this->providerId));
+        $sth->execute(array($userId, $this->providerid));
         if ( $star_rating = $sth->fetchObject() ) {
             $average = round($star_rating->average);
         }
@@ -94,7 +103,7 @@ class StarRating
         if ( !isset($this->providerId) ) return 0;
         $totalVotesQuery = "SELECT * FROM star_rating WHERE providerid = ?";
         $sth = $this->dbc->prepare($totalVotesQuery);
-        $sth->execute(array($this->providerId));
+        $sth->execute(array($this->providerid));
         $rowCount = 0;
         while ( $star_rating = $sth->fetchObject() ) {
             $rowCount++;

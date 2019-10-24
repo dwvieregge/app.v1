@@ -11,6 +11,7 @@ use Classes\User;
 use Classes\Session;
 use Classes\Customer;
 use Classes\StarRating;
+use Classes\Forgot;
 
 return function (App $app) {
 
@@ -25,6 +26,7 @@ return function (App $app) {
     ##});
 
     /**
+     * route:
      * homepage
      */
     $app->get('/', function (Request $request, Response $response, array $args) use ($container) {
@@ -36,7 +38,8 @@ return function (App $app) {
     });
 
     /**
-     * login
+     * route:
+     * login with user and password
      */
     $app->get('/login/{email}/{pswd}', function (Request $request, Response $response, array $args) use ($container) {
         // Sample log message
@@ -44,9 +47,16 @@ return function (App $app) {
 
         $data = new stdClass();
 
+        /**
+         * auth user and copy data
+         */
         $user = new User($args);
+        $user->Auth();
         $data->user = $user;
 
+        /**
+         * success create session and find what customer
+         */
         if ( $user->success ) {
             if ( $user->isvalid && $user->active ) {
                 $session = new Session($user);
@@ -62,6 +72,10 @@ return function (App $app) {
         echo json_encode($data);
     });
 
+    /**
+     * route:
+     * get new star rating (homepage)
+     */
     $app->get('/starrating', function (Request $request, Response $response, array $args) use ($container) {
         // Sample log message
         $container->get('logger')->info("Slim-Skeleton '/' starrating");
@@ -69,12 +83,14 @@ return function (App $app) {
          $data = new stdClass();
          $data->success =  1;
 
-        // Render index view
         $starrating = new StarRating();
         $starrating->View();
-
     });
 
+    /**
+     * route:
+     * create new star rating
+     */
     $app->post('/starrating', function (Request $request, Response $response, array $args) use ($container) {
         // Sample log message
         $container->get('logger')->info("Slim-Skeleton '/' starrating");
@@ -85,34 +101,60 @@ return function (App $app) {
         // Render index view
         $starrating = new StarRating();
         $starrating->Add();
-
     });
 
-    $app->get('/forgot', function (Request $request, Response $response, array $args) use ($container) {
+    /**
+     * route:
+     * forgot email
+     */
+    $app->get('/forgot/{email}', function (Request $request, Response $response, array $args) use ($container) {
         // Sample log message
-        $container->get('logger')->info("Slim-Skeleton '/' starrating");
+        $container->get('logger')->info("Slim-Skeleton '/' forgot");
 
         $data = new stdClass();
 
         /**
-         * see if they are a user
+         * see if they are a authorized user
          */
         $user = new User($args);
-        $data->user = $user;
+        $user->Auth();
 
         /**
-         * they are, search
+         * should only be one matching user
          */
-        if ( $user->success ) {
-            if ( $user->isvalid && $user->active ) {
-                $forgot = new Forgot($user);
-                $forgot->GetLink();
-                var_dump($forgot);
-            }
+        if ( $user->success && $user->active ) {
+            $forgot = new Forgot($user);
+            $forgot->SendLinkEmail();
+            $data = $forgot;
+        } else if ( !$user->active) {
+            $data->error =  'You are no longer active. Please contact support.';
         } else {
-            $data->error =  'User not found';
+            $data->error =  "We couldn't find a user with the your email address. Try creating a new account.";
         }
         echo json_encode($data);
+    });
 
+    /**
+     * route:
+     * reset user password
+     */
+    $app->get('/12d945k0sdk/{keyhash}', function (Request $request, Response $response, array $args) use ($container) {
+        // Sample log message
+        $container->get('logger')->info("Slim-Skeleton '/' forgot");
+
+        $data = new stdClass();
+
+        /**
+         * see if they are a authorized user
+         */
+        $forgot = new Forgot();
+
+        if ( $forgot->HashIsGood($args['keyhash']) ) {
+            $data->success =  1;
+        }
+        else {
+            $data->error =  "Your link didn't work. Go again.";
+        }
+        echo json_encode($data);
     });
 };

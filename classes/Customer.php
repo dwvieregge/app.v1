@@ -2,25 +2,32 @@
 
 namespace Classes;
 
-class Customer
+class Customer extends AppV1
 {
-    private $dbc;
-    private $id;
-
     public $firstname;
     public $lastname;
     public $mobile;
     public $email;
     public $found = 0;
 
+    private $dbc;
+
+    protected $app;
     protected $userid;
 
     function __construct(User $user)
     {
-        $this->dbc = \Classes\DBConnect::instance();
-        if ( ! $this->dbc ) return $this;
         if ( ! $user->userid ) return $this;
         $this->userid = $user->userid;
+
+        /**
+         * parent (with dbc)
+         */
+        $this->app = parent::instance();
+        $this->dbc = $this->app->dbc;
+        if ( ! $this->dbc ) return $this;
+
+
         if ($user->userid) {
             $this->View();
         }

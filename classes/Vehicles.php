@@ -2,25 +2,32 @@
 
 namespace Classes;
 
-class Vehicles extends AppV1 {
+class Vehicles extends AppV1
+{
+    public $vehicles;
+    public $success = FALSE;
+    public $count = 0;
 
+    protected $app;
     protected $dbc;
     protected $deletesth;
     protected $addsth;
     protected $editsth;
     protected $viewsth;
 
-    public $vehicles;
-    public $success = FALSE;
-    public $count = 0;
-
     function __construct()
     {
-        $this->dbc = parent::instance()->dbc;
         $this->success = FALSE;
+
+        /**
+         * parent (with dbc)
+         */
+        $this->app = parent::instance();
+        $this->dbc = $this->app->dbc;
         if ( ! $this->dbc ) return $this;
+
         $this->deletesth = null;
-        $this->addsth = $this->dbc->prepare("insert into vehicles set vehicletypeid = ?, vehicletypename = ?");
+        $this->addsth = $this->dbc->prepare("insert into vehicles set vehicletypeid = ?, vehicletypename = ?, inserttimestamp = current_timestamp");
         $this->editsth = $this->dbc->prepare("update vehicles set makename = ?, vehicletypeid =? where id = ?");
     }
 

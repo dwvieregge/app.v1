@@ -29,14 +29,15 @@ class DatabaseConnection extends \PDO
     function __construct($options = null)
     {
         $dbhost = '127.0.0.1';
-        $dbname= 'servicev1';
-        $dbuser= 'optimusprime';
+        $dbname = 'servicev1';
+        $dbuser = 'optimusprime';
         $dbpswd = '0pT1mu5Pr!m3';
         $dbport = '3306';
 
         $this->error = FALSE;
         try {
-            $this->dbh = new \PDO("mysql:host={$dbhost};dbname={$dbname};port={$dbport}", $dbuser, $dbpswd, array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => TRUE));
+            //$this->dbh = new \PDO("mysql:host={$dbhost};dbname={$dbname};port={$dbport}", $dbuser, $dbpswd, array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => TRUE));
+            $this->dbh = new \PDO("mysql:unix_socket=/tmp/mysql.sock;dbname={$dbname};", $dbuser, $dbpswd, array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => TRUE));
         } catch (PDOException $e) {
             $this->setError($e);
             die("Error: " . $this->error . "!<br/>");

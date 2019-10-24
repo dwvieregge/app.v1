@@ -3,9 +3,7 @@
 
 namespace Classes;
 
-use Classes\User;
-
-class Session
+class Session extends AppV1
 {
     private $dbc;
     private $id;
@@ -14,20 +12,31 @@ class Session
     public $found = 0;
     public $sessionid;
 
+    protected $app;
     protected $userid;
+    protected $addsth;
+    protected $editsth;
 
     const sessionid_length = 20;
 
     function __construct(User $user)
     {
-        $this->dbc = \Classes\DBConnect::instance();
+        /**
+         * parent (with dbc)
+         */
+        $this->app = parent::instance();
+        $this->dbc = $this->app->dbc;
         if ( ! $this->dbc ) return $this;
+
+        $this->addsth = $this->dbc->prepare("insert into sessions set userid = ?, sessionid = ?, inserttimestamp = current_timestamp");
+        $this->editsth = $this->dbc->prepare("update sessions set sessionid = ? where id = ?");
+
         if ( ! $user->userid ) return $this;
         $this->userid = $user->userid;
         if ($user->userid) {
             $this->View();
         }
-        if ( !$this->found ) {
+        if ( ! $this->found ) {
             $this->Add()->View();
         }
         if ( $this->found ) {
@@ -40,15 +49,22 @@ class Session
         echo "no delete";
     }
 
+    /**
+     * Add()
+     * @return $this
+     * @throws \Exception
+     */
     function Add()
     {
-        $sql = "insert into sessions set userid = ?, sessionid = ?";
-        $sth = $this->dbc->prepare($sql);
-        $this->GetUniqueSessionId();
-        $sth->execute(array($this->userid, $this->sessionid));
+        $this->sessionid = $this->app->GetRandomBin2Hex(self::sessionid_length);
+        $this->execute(array($this->userid, $this->sessionid));
         return $this;
     }
 
+    /**
+     * View()
+     * @return $this
+     */
     function View()
     {
         $sql = "select *, 
@@ -68,23 +84,17 @@ class Session
         return $this;
     }
 
+    /**
+     * Edit()
+     * @return $this
+     * @throws \Exception
+     */
     function Edit()
     {
-        $sql = "update sessions set sessionid = ? where id = ?";
-        $sth = $this->dbc->prepare($sql);
-        $this->sessionid = $this->GetUniqueSessionId();
-        $sth->execute(array($this->userid, $this->id));
+        $this->sessionid = $this->app->GetRandomBin2Hex(self::sessionid_length);
+        $this->editsth->execute(array($this->userid, $this->id));
         return $this;
     }
 
-    function GetUniqueSessionId()
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $this->sessionid = '';
-        for ($i = 0; $i < self::sessionid_length; $i++) {
-            $index = rand(0, strlen($characters) - 1);
-            $this->sessionid .= $characters[$index];
-        }
-    }
 
 }

@@ -4,21 +4,30 @@ namespace Classes;
 
 class Models extends AppV1
 {
+    public $models;
+    public $success = FALSE;
+    public $count = 0;
+
+    protected $app;
     protected $dbc;
     protected $deletesth;
     protected $addsth;
     protected $editsth;
     protected $viewsth;
 
-    public $models;
-    public $success = FALSE;
-    public $count = 0;
 
     function __construct()
     {
-        $this->dbc = parent::instance()->dbc;
+
         $this->success = FALSE;
+
+        /**
+         * parent (with dbc)
+         */
+        $this->app = parent::instance();
+        $this->dbc = $this->app->dbc;
         if ( ! $this->dbc ) return $this;
+
         $this->deletesth = null;
         $this->addsth = $this->dbc->prepare("insert into models set makeid =?, modelid = ?, modelname = ?");
         $this->editsth  = $this->dbc->prepare("update models set modelname = ? where id = ?");

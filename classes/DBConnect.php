@@ -23,7 +23,8 @@ class DBConnect extends \PDO
 
         $this->error = FALSE;
         try {
-            $this->dbh = new \PDO("mysql:host={$dbhost};dbname={$dbname};port={$dbport}", $dbuser, $dbpswd, array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => TRUE));
+            //$this->dbh = new \PDO("mysql:host={$dbhost};dbname={$dbname};port={$dbport}", $dbuser, $dbpswd, array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => TRUE));
+            $this->dbh = new \PDO("mysql:unix_socket=/Applications/MAMP/tmp/mysql/mysql.sock;dbname={$dbname};", $dbuser, $dbpswd, array(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => TRUE));
         } catch (PDOException $e) {
             $this->setError($e);
             die("Error: " . $this->error . "!<br/>");

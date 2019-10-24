@@ -230,21 +230,18 @@ class AppV1
     }
 
     /**
-     * Email()
-     * @param $recipient
+     * SendEmail
+     * @param $to
+     * @param $subject
+     * @param $message
+     * @return bool
      */
-    function Email(&$recipient)
+    function SendEmail($to, $subject, $message)
     {
-        $to = $recipient->email;
-        $subject = "Reset Your Password";
-
-        $message = "<b>This is HTML message.</b>";
-        $message .= "<h1>Click <a href='http://service.local/{$recipient->resetlink}'>here</a> to reset or copy and paste into browser http://service.local/{$recipient->resetlink}</h1>";
-
         $header = "From:abc@somedomain.com \r\n";
         $header .= "Cc:afgh@somedomain.com \r\n";
         $header .= "MIME-Version: 1.0\r\n";
         $header .= "Content-type: text/html\r\n";
-        $recipient->sent = mail ($to, $subject, $message, $header);
+        return mail ($to, $subject, $message, $header);
     }
 }

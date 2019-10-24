@@ -1,16 +1,19 @@
 <?php
 
 
-class VinApi
-{
-    private $apiURL;
-    private $format;
-    private $data;
+namespace Classes;
 
+
+class VinApi extends AppV1
+{
     public $ERRORS = array();
     public $Vehicles_Data;
     public $Count = 0;
     public $Success = FALSE;
+
+    private $apiURL;
+    private $format;
+    private $data;
 
      function __construct()
      {

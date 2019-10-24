@@ -4,24 +4,31 @@ namespace Classes;
 
 class Makes extends AppV1
 {
+    public $makes;
+    public $success = FALSE;
+    public $count = 0;
 
+    protected $app;
     protected $dbc;
     protected $deletesth;
     protected $addsth;
     protected $viewsth;
     protected $editsth;
 
-    public $makes;
-    public $success = FALSE;
-    public $count = 0;
 
     function __construct()
     {
-        $this->dbc = parent::instance()->dbc;
         $this->success = FALSE;
+
+        /**
+         * parent (with dbc)
+         */
+        $this->app = parent::instance();
+        $this->dbc = $this->app->dbc;
         if ( ! $this->dbc ) return $this;
+
         $this->deletesth = null;
-        $this->addsth = $this->dbc->prepare("insert into makes set makeid = ?, makename = ?, vehicletypeid =?");
+        $this->addsth = $this->dbc->prepare("insert into makes set makeid = ?, makename = ?, vehicletypeid =?, inserttimestamp = current_timestamp");
         $this->editsth  = $this->dbc->prepare("update makes set makename = ?, vehicletypeid =? where id = ?");
     }
 
