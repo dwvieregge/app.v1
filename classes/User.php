@@ -18,6 +18,8 @@ class User extends AppV1
     protected $dbc;
     protected $addsth;
 
+    const MAXPSWD = 15;
+
     /**
      * these are needed for search
      */
@@ -87,6 +89,77 @@ class User extends AppV1
             $this->notfound = 1;
         }
         return $this;
+    }
+
+    /**
+     * isValidPswd()
+     * @return bool
+     */
+    function isValidPswd() {
+        if ( !$this->pswd ) return FALSE;
+        if (strlen($this->pswd) <= self::MAXPSWD AND preg_match("/^[a-z0-9!?#@%&\$\^\*]+$/i", $this->pswd)) {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    /**
+     * isValidEmail()
+     * @return bool
+     */
+    function isValidEmail() {
+        if ( !$this->email ) return FALSE;
+        if (filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    /**
+     * SetActive()
+     *
+     * @param int $active
+     * @return $this
+     */
+    private function SetActive($active=1) {
+        if ( !in_array($active, array(1, 0, TRUE, FALSE))) return $this;
+        $this->active = $active;
+        return $this;
+    }
+
+    /**
+     * DeactivateUser()
+     * @return bool
+     */
+    function DeactivateUser()
+    {
+        return $this->SetActive(0)->Edit();
+    }
+
+    /**
+     * ActivateUser()
+     * @return bool
+     */
+    function ActivateUser()
+    {
+        return $this->SetActive(1)->Edit();
+    }
+
+    /**
+     * UserEmailExists
+     * @return bool
+     */
+    function UserEmailExists()
+    {
+        if ( !$this->email ) return FALSE;
+        $sth = $this->dbc->prepare("select id, active from users where email = ?");
+        $sth->execute(array($this->email));
+        if ( $users = $sth->fetchObject() ) {
+            $this->userid = $users->id;
+            $this->active = $users->active;
+            return TRUE;
+        }
+        return FALSE;
     }
 
     /**
@@ -173,10 +246,30 @@ class User extends AppV1
 
     /**
      * Edit()
-     * @return $this
+     * @return bool
      */
     public function Edit()
     {
-        return $this;
+        $BIND = array();
+        $PARAMS = array();
+        if ( $this->email )  {
+            array_push($BIND, $this->email);
+            array_push($PARAMS, ' email = ? ');
+        }
+        if ( $this->pswd )  {
+            array_push($BIND, $this->pswd);
+            array_push($PARAMS, ' pswd = ? ');
+        }
+        if ( $this->active )  {
+            array_push($BIND, $this->active);
+            array_push($PARAMS, ' active = ? ');
+        }
+        if ( $this->userid AND sizeof($BIND) > 0 AND sizeof($BIND) == sizeof($PARAMS) ) {
+            $sql = 'update users set ' . implode(', ',  $PARAMS) . ' where id = ?';
+            $sth = $this->dbc->prepare($sql);
+            $sth->execute($BIND);
+            return FALSE;
+        }
+        return FALSE;
     }
 }

@@ -69,7 +69,7 @@ function isValidEmailAddress(email) {
 }
 
 function isValidPassword(pswd) {
-    if ( pswd.length == 0 || pswd.length > 30 ) {
+    if ( pswd.length == 0 || pswd.length > 15 ) {
         return 0;
     }
     var pattern = /^[a-z0-9!?#@%&\$\^\*]+$/i;
