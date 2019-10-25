@@ -34,7 +34,7 @@
                     }
                     $('.customer-name').html(salutaion + localStorage.getItem('service-customer'));
                     if( $.cookie('service-session-id') === null ) {
-                        // EXPIRED
+                        alert('expired session');
                     } else {
                         var sessionid = getCookie('service-session-id');
                         alert(sessionid);
@@ -95,6 +95,7 @@
         <script src="js/login.js"></script>
         <script src="js/forgot.js"></script>
         <script src="js/rateprovider.js"></script>
+        <script src="js/vehicleinfo.js"></script>
 
         <script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
@@ -326,6 +327,12 @@
                 </p>
                 <p>
                 <form id="vehicle-info-form">
+                    <label for="vehicle-info-year">Vehicle Year:</label>
+                    <input type="text" name="vehicle-info-year" id="vehicle-info-year" value="">
+                    <label for="vehicle-info-make">Vehicle Make:</label>
+                    <input type="text" name="vehicle-info-make" id="vehicle-info-make" value="">
+                    <label for="vehicle-info-model">Vehicle Model:</label>
+                    <input type="text" name="vehicle-info-model" id="vehicle-info-model" value="">
                     <label for="vehicle-info-vin">Vehicle VIN:</label>
                     <input type="text" name="vehicle-info-vin" id="vehicle-info-vin" value="">
                     <input type="button" id="vehicle-info-btn" value="Submit">

@@ -18,7 +18,7 @@ class User extends AppV1
     protected $dbc;
     protected $addsth;
 
-    const MAXPSWD = 15;
+    const MAXPSWDLEN = 15;
 
     /**
      * these are needed for search
@@ -95,9 +95,10 @@ class User extends AppV1
      * isValidPswd()
      * @return bool
      */
-    function isValidPswd() {
+    function isValidPswd()
+    {
         if ( !$this->pswd ) return FALSE;
-        if (strlen($this->pswd) <= self::MAXPSWD AND preg_match("/^[a-z0-9!?#@%&\$\^\*]+$/i", $this->pswd)) {
+        if (strlen($this->pswd) <= self::MAXPSWDLEN AND preg_match("/^[a-z0-9!?#@%&\$\^\*]+$/i", $this->pswd)) {
             return TRUE;
         }
         return FALSE;
@@ -107,12 +108,9 @@ class User extends AppV1
      * isValidEmail()
      * @return bool
      */
-    function isValidEmail() {
-        if ( !$this->email ) return FALSE;
-        if (filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
-            return TRUE;
-        }
-        return FALSE;
+    function isValidEmail()
+    {
+        return $this->app->isValidEmail($this->email);
     }
 
     /**
@@ -121,7 +119,8 @@ class User extends AppV1
      * @param int $active
      * @return $this
      */
-    private function SetActive($active=1) {
+    private function SetActive($active=1)
+    {
         if ( !in_array($active, array(1, 0, TRUE, FALSE))) return $this;
         $this->active = $active;
         return $this;

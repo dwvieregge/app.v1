@@ -26,13 +26,26 @@ class AppV1
     }
 
     /**
+     * isValidEmail()
+     * @param string $email
+     * @return bool
+     */
+    function isValidEmail($email = '')
+    {
+        if ( !is_string($email) )  return FALSE;
+        if ( stlen($email) == 0 ) return FALSE;
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    /**
      * validateDate()
      *
      * @param $date
      * @param string $format
      * @return bool
      */
-
     function validateDate($date, $format = 'Y-m-d')
     {
         $d = DateTime::createFromFormat($format, $date);
